@@ -10,12 +10,17 @@ class GetAllUnApprovedRecordDetail {
     }
 }
 
+let selectAllBoolean = false
 var ZAGlobal = {
+    selectManageColumn: [],
     selectedRecords: [],
     allRecords: [],
     filteredRecords: [],
     recordFulldDetails: [],
+    module ,
     reRenderTableBody: async function () {
+        $('.selectTableHeadForColumn').empty()
+        $('._thead tr').empty()
         $('._tbody').empty();
         var tbody = '';
 
@@ -24,27 +29,31 @@ var ZAGlobal = {
             return;
         };
 
-        let tablehead = ''
+        let tablehead = []
+        let selectTableHeadForManageColumn = []
         ZAGlobal.recordFulldDetails.forEach(function (record) { // Render filtered records
+            let tableheadData = ''
             let tableData = ''
+            let selectedHeadsForManageColumn = ''
             for (const key in record) {
-                tablehead += `<th id=${key}>${key}</th>`
+                selectedHeadsForManageColumn += `<p><input type="checkbox" data-id=${key} name=${key} value=${key} ${ZAGlobal.selectManageColumn.includes(key) ? 'checked' : ''}><label for=${key}>${key}</label><br></p>`
                 if (Object.prototype.hasOwnProperty.call(record, key)) {
-                    const element = record[key]; 
-                    if (typeof element == 'object') {
-                        console.log(element); 
-                    }  
-                    tableData += `<td>${typeof element !== 'object' && element ? element : '' }</td>`
+                    if (ZAGlobal.selectManageColumn.includes(key)) {
+                        tableheadData += `<th id=${key}> ${key} </th>`
+                        tableData += `<td>${typeof record[key] !== 'object' && record[key] ? record[key] : ''}</td>`
+                    }
                 }
             }
-            
-            tbody += `<tr data-id="${record.id}" data-module="${'Leads'}">
-                        <td><input type="checkbox" data-id="${record.id}" data-module="${'Leads'}" ${ZAGlobal.selectedRecords.includes(record.id) ? 'checked' : ''}></td>
+            selectTableHeadForManageColumn.push(selectedHeadsForManageColumn)
+            tablehead.push(tableheadData)
+            tbody += `<tr data-id="${record.id}" data-module="${ZAGlobal.module}">
+                        <td><input type="checkbox" data-id="${record.id}" data-module="${ZAGlobal.module}" ${ZAGlobal.selectedRecords.includes(record.id) ? 'checked' : ''}></td>
                         ${tableData}
                     </tr>`;
-
-        });
-        $('._thead tr').append(tablehead)
+        })
+        $('.selectTableHeadForColumn').append(selectTableHeadForManageColumn.pop())
+        $('._thead tr').append(`<th onclick="ZAGlobal.selectAll();"><input type="checkbox" ${selectAllBoolean && 'checked'}></th>`)
+        $('._thead tr').append(tablehead.pop())
         $('._tbody').append(tbody);
 
         // After the table, render selected records
@@ -110,6 +119,15 @@ document.getElementById('resetTableBtn').addEventListener('click', () => {
     ZAGlobal.reRenderTableBody();
     document.getElementById('search_popup').style.display = 'none';
 });
+
+function showManageColumn() {
+    let hidingManageColumn = document.querySelector('.selectTableHeadForColumn')
+    if (hidingManageColumn.hasAttribute('hidden')) {
+        hidingManageColumn.removeAttribute('hidden')
+    } else {
+        hidingManageColumn.setAttribute('hidden', true)
+    }
+}
 
 ZOHO.embeddedApp.on("PageLoad", function (data) {
     if (data && data.Entity) {
@@ -200,6 +218,22 @@ document.querySelector('tbody').addEventListener('change', function (event) {
         ZAGlobal.reRenderTableBody();
     }
 });
+
+ZAGlobal.selectManageColumn.push('Full_Name','$state','Lead_Status','Lead_Source','Last_Activity_Time')
+document.querySelector('.selectTableHeadForColumn').addEventListener('change', (event) => {
+    if (event.target.type === 'checkbox') {
+        const recordId = event.target.dataset.id;
+        if (event.target.checked) {
+            ZAGlobal.selectManageColumn.push(recordId);
+        } else {
+            const index = ZAGlobal.selectManageColumn.indexOf(recordId);
+            if (index > -1) {
+                ZAGlobal.selectManageColumn.splice(index, 1);
+            }
+        }
+        ZAGlobal.reRenderTableBody();
+    }
+})
 
 // Button action for approve/reject
 ZAGlobal.buttonAction = function (action) {
@@ -294,11 +328,13 @@ document.getElementById('searchBar').addEventListener('input', function () {
 });
 
 ZAGlobal.selectAll = function () {
+    selectAllBoolean = !selectAllBoolean
     const headerCheckbox = document.querySelector('thead input[type="checkbox"]');
     const rowCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
 
     headerCheckbox.addEventListener('change', () => {
         rowCheckboxes.forEach(checkbox => {
+            headerCheckbox.checked = selectAllBoolean
             checkbox.checked = headerCheckbox.checked;
             const recordId = checkbox.dataset.id;
             if (checkbox.checked) {
