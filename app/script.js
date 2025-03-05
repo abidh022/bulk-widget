@@ -1,27 +1,50 @@
+class GetAllUnApprovedRecordDetail {
+    constructor(recordID, module) {
+        this.recordID = recordID
+        this.module = module
+    }
+
+    async getRecordDetail() {
+        let responce = await ZOHO.CRM.API.getRecord({ Entity: `${this.module}`, RecordID: `${this.recordID}`, approved: "both" })
+        return responce.data[0]
+    }
+}
 
 var ZAGlobal = {
-    selectedRecords: [], 
+    selectedRecords: [],
     allRecords: [],
     filteredRecords: [],
-    reRenderTableBody: function () {
+    recordFulldDetails: [],
+    reRenderTableBody: async function () {
         $('._tbody').empty();
         var tbody = '';
 
         if (ZAGlobal.filteredRecords.length === 0) {
             $('._tbody').html('<tr><td colspan="5">No records available to approve/reject.</td></tr>');
             return;
-        }
+        };
 
-        // Render filtered records
-        ZAGlobal.filteredRecords.forEach(function (record) {
-            tbody += `<tr data-id="${record.entity.id}" data-module="${record.module}">
-                        <td><input type="checkbox" data-id="${record.entity.id}" data-module="${record.module}" ${ZAGlobal.selectedRecords.includes(record.entity.id) ? 'checked' : ''}></td>
-                        <td>${record.entity.name}</td>
-                        <td>${record.rule.name}</td>
-                        <td>${record.entity.id}</td>
-                        <td><div class="_status ${record.is_approved ? '_approved' : record.is_rejected ? '_rejected' : '_'}"></div></td>
+        let tablehead = ''
+        ZAGlobal.recordFulldDetails.forEach(function (record) { // Render filtered records
+            let tableData = ''
+            for (const key in record) {
+                tablehead += `<th id=${key}>${key}</th>`
+                if (Object.prototype.hasOwnProperty.call(record, key)) {
+                    const element = record[key]; 
+                    if (typeof element == 'object') {
+                        console.log(element); 
+                    }  
+                    tableData += `<td>${typeof element !== 'object' && element ? element : '' }</td>`
+                }
+            }
+            
+            tbody += `<tr data-id="${record.id}" data-module="${'Leads'}">
+                        <td><input type="checkbox" data-id="${record.id}" data-module="${'Leads'}" ${ZAGlobal.selectedRecords.includes(record.id) ? 'checked' : ''}></td>
+                        ${tableData}
                     </tr>`;
+
         });
+        $('._thead tr').append(tablehead)
         $('._tbody').append(tbody);
 
         // After the table, render selected records
@@ -78,29 +101,36 @@ window.addEventListener('click', (event) => {
 
 document.getElementById('doneBtn').addEventListener('click', () => {
     const selectedModule = document.getElementById('module').value;
-    filterRecordsByModule(selectedModule);  
+    filterRecordsByModule(selectedModule);
     document.getElementById('search_popup').style.display = 'none';  // Close the popup after done
 });
 
 document.getElementById('resetTableBtn').addEventListener('click', () => {
     ZAGlobal.filteredRecords = ZAGlobal.allRecords;  // Reset to all records
-    ZAGlobal.reRenderTableBody();  
-    document.getElementById('search_popup').style.display = 'none';  
+    ZAGlobal.reRenderTableBody();
+    document.getElementById('search_popup').style.display = 'none';
 });
 
 ZOHO.embeddedApp.on("PageLoad", function (data) {
     if (data && data.Entity) {
-        ZAGlobal.module = data.Entity;
-        ZOHO.CRM.API.getApprovalRecords({ type: "awaiting" })
-            .then(function (toBeApproved) {
-                ZAGlobal.filteredRecords = toBeApproved.data;
-                ZAGlobal.allRecords = [...toBeApproved.data];
+        ZAGlobal.module = data.Entity
+        if (!Array.isArray(ZAGlobal.recordFulldDetails)) {
+            ZAGlobal.recordFulldDetails = []
+        }
 
-                ZAGlobal.reRenderTableBody(); // Initial render
-            })
-            .catch(function (error) {
-                console.log('Error fetching records:', error);
-            });
+        ZOHO.CRM.API.getApprovalRecords().then(async function (toBeApproved) {
+            ZAGlobal.filteredRecords = toBeApproved.data;
+            ZAGlobal.allRecords = [...toBeApproved.data];
+
+            for (const record of ZAGlobal.filteredRecords) {
+                let specificRecordDetail = await new GetAllUnApprovedRecordDetail(record.entity.id, record.module).getRecordDetail()
+                ZAGlobal.recordFulldDetails.push(specificRecordDetail)
+            }
+
+            ZAGlobal.reRenderTableBody(); // Initial render
+        }).catch(function (error) {
+            console.log('Error fetching records:', error);
+        });
 
         ZOHO.CRM.META.getModules().then(function (data) {
             if (data && Array.isArray(data.modules)) {
@@ -163,7 +193,7 @@ document.querySelector('tbody').addEventListener('change', function (event) {
             ZAGlobal.selectedRecords.push(recordId);
         } else {
             const index = ZAGlobal.selectedRecords.indexOf(recordId);
-            if (index > -1) {   
+            if (index > -1) {
                 ZAGlobal.selectedRecords.splice(index, 1);
             }
         }
@@ -236,7 +266,7 @@ ZAGlobal.triggerAppRejToast = function (action, approvedRecordsCount, rejectedRe
         gravity: "top", // top or bottom
         position: "center", // left, center or right
         stopOnFocus: true,
-        onClick: function () {}
+        onClick: function () { }
     }).showToast();
 };
 
@@ -287,20 +317,20 @@ ZAGlobal.selectAll = function () {
 };
 
 
-ZOHO.embeddedApp.init().then(function() {
-    ZOHO.CRM.CONFIG.getCurrentUser().then(function(data) {
+ZOHO.embeddedApp.init().then(function () {
+    ZOHO.CRM.CONFIG.getCurrentUser().then(function (data) {
         var userLanguage = data.users[0].locale;
 
-        if(userLanguage === 'zh_CN') {
+        if (userLanguage === 'zh_CN') {
             loadChineseTranslations();
         } else {
-            loadEnglishTranslations();  
+            loadEnglishTranslations();
         }
 
-    }).catch(function(error) {
+    }).catch(function (error) {
         console.error('Error fetching current user:', error);
     });
-}).catch(function(error) {
+}).catch(function (error) {
     console.error('Error initializing SDK:', error);
 });
 
