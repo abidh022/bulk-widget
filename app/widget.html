@@ -16,14 +16,23 @@
   <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="script.js" defer></script>
 </head>
 
 <body>
   <div class="top">
-    <input type="text" id="searchBar" placeholder="Search">
-    <button id="searchbtn" class="btns">Filter</button>
-    <button id="resetTableBtn" class="btns">Filter Reset</button>
+      <input type="text" id="searchBar" placeholder="Search">
+      <button id="searchbtn" class="btns">Filter</button>
+      <button id="resetTableBtn" class="btns">Filter Reset</button>
+    
+    <div>
+      <button onclick="showManageColumn()" id="manageButton" title="Manage Column"><i class="fa-solid fa-sort"></i></button>
+      <section class="selectTableHeadForColumn" id="myParagraph" hidden>
+      </section>
+    </div>
+
+
     <div id="search_popup" class="search_popup">
       <div class="popup_content">
         <span id="close_PopupBtn" class="close">&times;</span>
@@ -31,27 +40,22 @@
         <label for="module" class="moduleclass">Select a specific Module</label>
         <select class="selectbox" id="module"></select><br>
         <div id="twobtns">
-        <button id="doneBtn" class="btns">Done</button>
-        <button id="cancelBtn" class="btns">Cancel</button>
-      </div>
+          <button id="doneBtn" class="btns">Done</button>
+          <button id="cancelBtn" class="btns">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <!-- <th onclick="ZAGlobal.selectAll();"><input type="checkbox"></th> -->
-        <th onclick="ZAGlobal.selectAll();"><input type="checkbox"></th>
-        <th id="recordNameHeader">Record Name</th>
-        <th id="approvalProcessNameHeader">Approval Process Name</th>
-        <th id="recordIdHeader">Record Id</th>
-        <th id="statusHeader">Status</th>
-      </tr>
-    </thead>
-    <tbody class="_tbody">
-    </tbody>
-  </table>
+  <main id="tableMain">
+    <table>
+      <thead class="_thead">
+        <tr></tr>
+      </thead>
+      <tbody class="_tbody">
+      </tbody>
+    </table>
+  </main>
 
   <div class="comments-section">
     <textarea class="_comments" placeholder="Comments"></textarea>
@@ -64,14 +68,14 @@
 
   <table class="selected-records-section" style="display: none; width: 100%; margin-top: 20px;">
     <thead>
-        <tr>
-            <th colspan="5">Selected Records</th>
-        </tr>
+      <tr>
+        <th colspan="5">Selected Records</th>
+      </tr>
     </thead>
     <tbody class="selected-records-body">
-        <!-- Selected records will be dynamically added here -->
+      <!-- Selected records will be dynamically added here -->
     </tbody>
-</table>
+  </table>
 </body>
 
 </html>

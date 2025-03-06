@@ -2,9 +2,30 @@ body {
     font-family: Arial, sans-serif;
     margin: 20px;
   }
+
+  #myParagraph{
+    position: absolute;
+    top: 10%;
+    right: 20px;
+    border: 1px solid #ddd;
+    transition: 0.3s all ease-in-out;
+    border-radius: 10px;
+    background-color:white;
+    box-shadow: 1px 1px 10px #ddd;
+    padding: 20px;
+    z-index: 1000;
+    min-height: 300px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
   
+  #tableMain{
+    max-width: 100%;
+    min-width: 100%;
+    overflow-x: auto;
+  }
+
   table {
-    width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
   }
@@ -86,6 +107,7 @@ body {
   .top{
     display: flex;
     gap: 15px;
+    justify-content: space-around;
   }
 
   #searchBar{
@@ -118,6 +140,18 @@ body {
   text-decoration: none solid rgb(255, 255, 255);
   text-align: center;
   box-shadow: 0 2px 0 #0061CA;
+}
+
+#manageButton{
+  padding: 9px 20px;
+  color: black;
+  text-overflow: ellipsis;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  height: 35px;
+  font-size: 14px;
+  text-align: center;
 }
 
 #twobtns{
