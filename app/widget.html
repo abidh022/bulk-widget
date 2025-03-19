@@ -20,31 +20,37 @@
 </head>
 
 <body>
+  <h3 id="title">Bulk Record Approval</h3>
   <div class="top">
     <input type="text" id="searchBar" placeholder="Search">
-    <button id="searchbtn" class="btns">Filter</button>
-    <button id="resetTableBtn" class="btns">Filter Reset</button>
-    <div id="search_popup" class="search_popup">
+    <button id="searchbtn" class="btns">Select Module</button>
+    <button id="resetTableBtn" class="btns">Reset</button>
+    <div id="search_popup" class="_popup">
       <div class="popup_content">
-        <span id="close_PopupBtn" class="close">&times;</span>
-        <h3 id="popup_header">Filter List</h3>
-        <label for="module" class="moduleclass">Select a specific Module</label>
-        <select class="selectbox" id="module"></select><br>
+        <!-- <span id="close_PopupBtn" class="close">&times;</span> -->
+        <h3 id="popup_header">Select Module</h3>
+        <div id="_module_select">
+        <label for="module" class="moduleclass">Modules</label>
+        <select class="selectbox" id="module" multiple="multiple"></select><br>
+      </div>
         <div id="twobtns">
-        <button id="doneBtn" class="btns">Done</button>
-        <button id="cancelBtn" class="btns">Cancel</button>
-      </div>
-      </div>
+          <button id="doneBtn" class="btns">Done</button>
+          <button id="clearBtn" class="btns">Clear</button>
+          <button id="cancelBtn">Cancel</button>
+        </div>
+        <div class="selected-modules" id="selected-modules"></div> 
     </div>
-  </div>
+    
+    </div>
+    </div>
 
   <table>
     <thead>
       <tr>
-        <!-- <th onclick="ZAGlobal.selectAll();"><input type="checkbox"></th> -->
-        <th onclick="ZAGlobal.selectAll();"><input type="checkbox"></th>
+        <th><input type="checkbox" id="selectAllCheckbox"/></th>
         <th id="recordNameHeader">Record Name</th>
         <th id="approvalProcessNameHeader">Approval Process Name</th>
+        <th id="moduleIdHeader">Module</th>
         <th id="recordIdHeader">Record Id</th>
         <th id="statusHeader">Status</th>
       </tr>
@@ -61,17 +67,8 @@
     <button class="reject" onclick="ZAGlobal.buttonAction('reject');">Bulk Reject</button>
     <button class="approve" onclick="ZAGlobal.buttonAction('approve');">Bulk Approve</button>
   </div>
-
-  <table class="selected-records-section" style="display: none; width: 100%; margin-top: 20px;">
-    <thead>
-        <tr>
-            <th colspan="5">Selected Records</th>
-        </tr>
-    </thead>
-    <tbody class="selected-records-body">
-        <!-- Selected records will be dynamically added here -->
-    </tbody>
-</table>
+  <div id="paginationFooter" class="pagination-footer">
+</div>
 </body>
 
 </html>
